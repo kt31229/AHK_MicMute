@@ -27,6 +27,8 @@
         this.onDisplayChangeFunc := ObjBindMethod(this, "_onDisplayChange")
         this.calculatePosFunc := ObjBindMethod(this, "_calculatePos")
         this.drawFunc := ObjBindMethod(this, "draw")
+        this.blinkFunc := ObjBindMethod(this, "_blink")
+        this.blinkVisible := 1
         this.state := initialState
         this.locked := 1
 
@@ -36,6 +38,7 @@
         this._setupHotkeys()
         this.draw()
         this.setShow(this.options.showOn == 2 || this.state == this.options.showOn)
+        this._updateBlinkTimer()
     }
 
     _setupHotkeys() {
@@ -296,24 +299,47 @@
         this._clear()
         if (!this.locked)
             this._fillBackground()
-        this._drawIcon(this.icons[this.state])
+        if (this.blinkVisible || this.state != 1)
+            this._drawIcon(this.icons[this.state])
         this._drawActivityIndicator()
         this._updateLayeredWindow()
         return this
     }
 
+    _blink() {
+        if (!this.shown || this.state != 1) {
+            this._updateBlinkTimer()
+            return
+        }
+        this.blinkVisible := !this.blinkVisible
+        this.draw()
+    }
+
+    _updateBlinkTimer() {
+        blinkFunc := this.blinkFunc
+        if (this.shown && this.state == 1) {
+            Try SetTimer, % blinkFunc, 1000
+        } else {
+            Try SetTimer, % blinkFunc, Off
+            this.blinkVisible := 1
+        }
+    }
+
     show() {
         Gui, % this.hwnd ":Default"
+        this.blinkVisible := 1
+        this.draw()
         Gui, Show, % Format("w{} h{} x{} y{} NA"
             , this.options.size, this.options.size
             , this.absolutePosition.x, this.absolutePosition.y)
-        this._updateLayeredWindow()
         this.shown := 1
+        this._updateBlinkTimer()
     }
 
     hide() {
         Gui, Hide
         this.shown := 0
+        this._updateBlinkTimer()
     }
 
     setShow(showHide := -1) {
@@ -340,6 +366,8 @@
             return
 
         this.state := state
+        this.blinkVisible := 1
+
         if (!this.locked)
             return
 
@@ -347,6 +375,7 @@
         if (this.options.showOn != 2)
             this.setShow(state == this.options.showOn)
 
+        this._updateBlinkTimer()
         return this
     }
 
@@ -363,6 +392,8 @@
 
             if (!this.shown)
                 this.setShow(1)
+
+            this._updateBlinkTimer()
         }
         return this
     }
@@ -386,6 +417,8 @@
         try {
             Gui, % this.hwnd ":Default"
             Gui, Destroy
+            blinkFunc := this.blinkFunc
+            Try SetTimer, % blinkFunc, Off
             OnMessage(0x201, this.onDragFunc, 0)
             OnMessage(0x46, this.onPosChangeFunc, 0)
             DisplayDevices.RemoveListener(this.onDisplayChangeFuncIndex)
