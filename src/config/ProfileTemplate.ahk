@@ -1,4 +1,4 @@
-﻿class ProfileTemplate {
+class ProfileTemplate {
     __New(p_name_Obj) {
         this.ProfileName := p_name_Obj
         this.Microphone := Array(new MicrophoneTemplate("Default", "", ""))
@@ -27,7 +27,10 @@
             , Size: 48
             , ShowActivityIndicator: 1
             , ActivityIndicatorThreshold: 20
-            , UseCustomIcons: 0 }
+            , UseCustomIcons: 0
+            , BlinkState: 0
+            , BlinkSpeed: 1
+            , LockPosition: 0 }
 
         if (IsObject(p_name_Obj)) {
             for prop, val in p_name_Obj {
@@ -37,6 +40,18 @@
             if (!this.OnscreenOverlay.HasKey("ActivityIndicatorThreshold")) {
                 this.OnscreenOverlay.ActivityIndicatorThreshold := 20
                 this.OnscreenOverlay.ShowActivityIndicator := 1
+            }
+
+            if (!this.OnscreenOverlay.HasKey("BlinkState")) {
+                this.OnscreenOverlay.BlinkState := 0
+            }
+
+            if (!this.OnscreenOverlay.HasKey("BlinkSpeed")) {
+                this.OnscreenOverlay.BlinkSpeed := this.OnscreenOverlay.HasKey("BlinkInterval") ? this.OnscreenOverlay.BlinkInterval : 1
+            }
+
+            if (!this.OnscreenOverlay.HasKey("LockPosition")) {
+                this.OnscreenOverlay.LockPosition := this.OnscreenOverlay.HasKey("PositionLock") ? this.OnscreenOverlay.PositionLock : 0
             }
 
             ; Ensure compatibility with old versions

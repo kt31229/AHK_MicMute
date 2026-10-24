@@ -1,4 +1,4 @@
-﻿global ui_obj, about_obj, current_profile, hotkey_panels, current_hp, action_editor
+global ui_obj, about_obj, current_profile, hotkey_panels, current_hp, action_editor
     , onExitCallback, UI_scale:= A_ScreenDPI/96, UI_profileIsDirty:= 0
     , input_hook, input_hook_timer, key_set, modifier_set, is_multiple_mics:=0
 
@@ -87,6 +87,8 @@ UI_setProfile(_neutron, p_profile){
     ui_obj.doc.getElementById("OnscreenOverlay").checked:= current_profile.OnscreenOverlay.Enabled
     ui_obj.doc.getElementById("OverlayShow").value:= current_profile.OnscreenOverlay.ShowOnState
     ui_obj.doc.getElementById("OverlayShowActivityIndicator").checked:= current_profile.OnscreenOverlay.ShowActivityIndicator
+    ui_obj.doc.getElementById("OverlayBlinkState").checked:= current_profile.OnscreenOverlay.BlinkState
+    ui_obj.doc.getElementById("OverlayLockPosition").checked:= current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : (current_profile.OnscreenOverlay.PositionLock ? current_profile.OnscreenOverlay.PositionLock : 0)
     ui_obj.doc.getElementById("OverlayActivityIndicatorThreshold").value:= current_profile.OnscreenOverlay.ActivityIndicatorThreshold ? current_profile.OnscreenOverlay.ActivityIndicatorThreshold : 0
     ui_obj.doc.getElementById("OverlayUseCustomIcons").checked:= current_profile.OnscreenOverlay.UseCustomIcons
     ui_obj.doc.getElementById("OverlayTheme").value:= current_profile.OnscreenOverlay.Theme
@@ -103,6 +105,9 @@ UI_setProfile(_neutron, p_profile){
     ui_obj.doc.getElementById("PTTDelay").value:= current_profile.PTTDelay
     UI_onUpdateDelay(current_profile.PTTDelay)
     UI_onUpdateActivityIndicatorThreshold(current_profile.OnscreenOverlay.ActivityIndicatorThreshold)
+    blinkSpeed := current_profile.OnscreenOverlay.BlinkSpeed ? current_profile.OnscreenOverlay.BlinkSpeed : (current_profile.OnscreenOverlay.BlinkInterval ? current_profile.OnscreenOverlay.BlinkInterval : 1)
+    ui_obj.doc.getElementById("OverlayBlinkSpeed").value := blinkSpeed
+    UI_onUpdateOverlayBlinkSpeed(blinkSpeed)
     UI_onRefreshMicActions("")
     innerCont.classList.remove("hidden")
     UI_profileIsDirty:= 0
@@ -250,10 +255,14 @@ UI_onSaveProfile(neutron, noReset:=0){
     current_profile.ExcludeFullscreen:= ui_obj.doc.getElementById("ExcludeFullscreen").checked? 1 : 0
     current_profile.OnscreenOverlay.ShowOnState:= ui_obj.doc.getElementById("OverlayShow").value
     current_profile.OnscreenOverlay.ShowActivityIndicator:= ui_obj.doc.getElementById("OverlayShowActivityIndicator").checked? 1 : 0
+    current_profile.OnscreenOverlay.BlinkState:= ui_obj.doc.getElementById("OverlayBlinkState").checked? 1 : 0
+    current_profile.OnscreenOverlay.LockPosition:= ui_obj.doc.getElementById("OverlayLockPosition").checked? 1 : 0
+    current_profile.OnscreenOverlay.PositionLock:= current_profile.OnscreenOverlay.LockPosition
     current_profile.OnscreenOverlay.UseCustomIcons:= ui_obj.doc.getElementById("OverlayUseCustomIcons").checked? 1 : 0
     current_profile.OnscreenOverlay.ActivityIndicatorThreshold:= ui_obj.doc.getElementById("OverlayActivityIndicatorThreshold").value+0
     current_profile.OnscreenOverlay.Theme:= ui_obj.doc.getElementById("OverlayTheme").value
     current_profile.OnscreenOverlay.Size:= ui_obj.doc.getElementById("OverlaySize").value
+    current_profile.OnscreenOverlay.BlinkSpeed:= Round(ui_obj.doc.getElementById("OverlayBlinkSpeed").value+0, 1)
     current_profile.afkTimeout:= UI_getAfkTimeoutValue()
     current_profile.LinkedApp:= ui_obj.doc.getElementById("LinkedApp").value
     current_profile.ForegroundAppsOnly:= ui_obj.doc.getElementById("ForegroundAppsOnly").checked? 1 : 0
@@ -585,6 +594,10 @@ UI_onConfirmOSDPos(x,y){
 
 UI_onUpdateActivityIndicatorThreshold(sensitivity){
     ui_obj.doc.getElementByID("OverlayActivityIndicatorThreshold_text").value:= (sensitivity ? sensitivity : 0) . "%"
+}
+
+UI_onUpdateOverlayBlinkSpeed(speed){
+    ui_obj.doc.getElementByID("OverlayBlinkSpeed_text").value:= Format("{:0.1f} s", speed+0)
 }
 
 UI_onChangeProfileName(neutron, event){

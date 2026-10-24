@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v1.1.36+
+#Requires AutoHotkey v1.1.36+
 
 global template_link:= "<link rel='stylesheet' id='css_{1:}' href='{2:}'>"
 , template_default_profile:= "<option value='{1:}' {2:} >{1:}</option>"
@@ -130,6 +130,10 @@ global template_link:= "<link rel='stylesheet' id='css_{1:}' href='{2:}'>"
                 , string: "Show an OSD when muting or unmuting the microphone"}
              ,{ selector: ".OnscreenOverlay-label"
                 , string: "Show the microphone's state in an always-on-top overlay"}
+             ,{ selector: ".OverlayBlinkState-label"
+                , string: "Blink the overlay icon when the microphone is muted"}
+             ,{ selector: ".OverlayLockPosition-label"
+                , string: "Lock the overlay position and disable the reposition shortcut (Ctrl+Alt+F10)"}
              ,{ selector: ".multiple-mics-label"
                 , string: "Right click to view instructions"}
              ,{ selector: ".ForceMicrophoneState-label"

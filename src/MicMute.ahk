@@ -1,4 +1,4 @@
-﻿#Requires AutoHotkey v1.1.36+
+#Requires AutoHotkey v1.1.36+
 
 ;compiler directives
 ;@Ahk2Exe-Let Res = %A_ScriptDir%\resources
@@ -331,7 +331,10 @@ switchProfile(p_name:=""){
                 , showOn: current_profile.OnscreenOverlay.ShowOnState
                 , showActivityIndicator: current_profile.OnscreenOverlay.ShowActivityIndicator
                 , activityIndicatorThreshold: current_profile.OnscreenOverlay.ActivityIndicatorThreshold
-                , useCustomIcons: current_profile.OnscreenOverlay.UseCustomIcons}, mic_controllers[1].state)
+                , useCustomIcons: current_profile.OnscreenOverlay.UseCustomIcons
+                , blinkState: current_profile.OnscreenOverlay.BlinkState
+                , blinkSpeed: current_profile.OnscreenOverlay.BlinkSpeed
+                , lockPosition: current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : (current_profile.OnscreenOverlay.PositionLock ? current_profile.OnscreenOverlay.PositionLock : 0)}, mic_controllers[1].state)
 
             ; setup level callback
             if (current_profile.OnscreenOverlay.ShowActivityIndicator)

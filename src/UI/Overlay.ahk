@@ -1,4 +1,4 @@
-﻿class Overlay {
+class Overlay {
     static GDI_TOKEN := 0
         , BACKGROUND_COLOR := 0x232323
         , BACKGROUND_TRANSPARENCY := 0xef000000
@@ -20,7 +20,8 @@
 
         ; Calculate initial position and export it
         this._calculatePos()
-        config_obj.exportConfig()
+        if (!this.options.lockPosition)
+            config_obj.exportConfig()
 
         this.onDragFunc := ObjBindMethod(this, "_onDrag")
         this.onPosChangeFunc := ObjBindMethod(this, "_onPosChange")
@@ -47,7 +48,11 @@
             Try Hotkey, ^!F9, % toggleFunc, On
         }
         lockFunc := objBindMethod(this, "toggleLock")
-        Try Hotkey, ^!F10, % lockFunc, On
+        if (!this.options.lockPosition) {
+            Try Hotkey, ^!F10, % lockFunc, On
+        } else {
+            Try Hotkey, ^!F10, Off
+        }
     }
 
     _onDisplayChange(){
@@ -64,7 +69,8 @@
             if (!this._setPosConfig(positionConfig))
                 Continue
 
-            this.options.pos[i] := this.relativePosition
+            if (!this.options.lockPosition)
+                this.options.pos[i] := this.relativePosition
             Goto, _positionSet
             Break
         }
@@ -75,18 +81,19 @@
 
         ; First time using the overlay, set the default position
         if (positionConfig.X = -1 || positionConfig.Y = -1){
-            this._setDefaultPos(primaryDisplay, this.options.pos.Length() > 1)
+            this._setDefaultPos(primaryDisplay, !this.options.lockPosition && this.options.pos.Length() > 1)
             Goto, _positionSet
         }
 
         ; Try to clone the first position onto the primary display
         if (this._setPosConfig(positionConfig, primaryDisplay)){
-            this.options.pos.InsertAt(1, this.relativePosition)
+            if (!this.options.lockPosition)
+                this.options.pos.InsertAt(1, this.relativePosition)
             Goto, _positionSet
         }
 
         ; Fallback to the default position
-        this._setDefaultPos(primaryDisplay, true)
+        this._setDefaultPos(primaryDisplay, !this.options.lockPosition)
 
         _positionSet:
         util_log("[Overlay] Calculated overlay position: [" this.absolutePosition.x ", " this.absolutePosition.y "] on display '" this.absolutePosition.DisplayId "'")
@@ -117,10 +124,12 @@
         this.relativePosition := Overlay.DEFAULT_POSITION.Clone()
         this.relativePosition.DisplayId := display.id
 
-        if (appendDisplay)
-            this.options.pos.InsertAt(1, this.relativePosition)
-        else
-            this.options.pos[1] := this.relativePosition
+        if (!this.options.lockPosition) {
+            if (appendDisplay)
+                this.options.pos.InsertAt(1, this.relativePosition)
+            else
+                this.options.pos[1] := this.relativePosition
+        }
 
         this.absolutePosition := display.getAbsolutePosition(this.relativePosition.X, this.relativePosition.Y)
     }
@@ -240,7 +249,7 @@
     }
 
     _onPosChanged(){
-        if (!this.changedPos)
+        if (this.options.lockPosition || !this.changedPos)
             return
 
         this.absolutePosition.X := xPos := this.changedPos.x
@@ -307,7 +316,7 @@
     }
 
     _blink() {
-        if (!this.shown || this.state != 1) {
+        if (!this.options.blinkState || !this.shown || this.state != 1) {
             this._updateBlinkTimer()
             return
         }
@@ -317,8 +326,10 @@
 
     _updateBlinkTimer() {
         blinkFunc := this.blinkFunc
-        if (this.shown && this.state == 1) {
-            Try SetTimer, % blinkFunc, 1000
+        if (this.options.blinkState && this.shown && this.state == 1) {
+            speed := this.options.blinkSpeed ? this.options.blinkSpeed : (this.options.blinkInterval ? this.options.blinkInterval : 1)
+            interval := speed < 10 ? Round(speed * 1000) : Round(speed)
+            Try SetTimer, % blinkFunc, % interval
         } else {
             Try SetTimer, % blinkFunc, Off
             this.blinkVisible := 1
@@ -380,6 +391,8 @@
     }
 
     toggleLock() {
+        if (this.options.lockPosition)
+            return this
         Try {
             Gui, % this.Hwnd ":Default"
             this.locked := !this.locked
@@ -419,6 +432,8 @@
             Gui, Destroy
             blinkFunc := this.blinkFunc
             Try SetTimer, % blinkFunc, Off
+            Try Hotkey, ^!F10, Off
+            Try Hotkey, ^!F9, Off
             OnMessage(0x201, this.onDragFunc, 0)
             OnMessage(0x46, this.onPosChangeFunc, 0)
             DisplayDevices.RemoveListener(this.onDisplayChangeFuncIndex)
