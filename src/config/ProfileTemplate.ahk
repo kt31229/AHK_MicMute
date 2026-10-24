@@ -53,6 +53,7 @@ class ProfileTemplate {
             if (!this.OnscreenOverlay.HasKey("LockPosition")) {
                 this.OnscreenOverlay.LockPosition := this.OnscreenOverlay.HasKey("PositionLock") ? this.OnscreenOverlay.PositionLock : 0
             }
+            this.OnscreenOverlay.Delete("PositionLock")
 
             ; Ensure compatibility with old versions
             ; AFK timeout was stored in minutes, now in ms

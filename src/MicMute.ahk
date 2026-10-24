@@ -334,7 +334,7 @@ switchProfile(p_name:=""){
                 , useCustomIcons: current_profile.OnscreenOverlay.UseCustomIcons
                 , blinkState: current_profile.OnscreenOverlay.BlinkState
                 , blinkSpeed: current_profile.OnscreenOverlay.BlinkSpeed
-                , lockPosition: current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : (current_profile.OnscreenOverlay.PositionLock ? current_profile.OnscreenOverlay.PositionLock : 0)}, mic_controllers[1].state)
+                , lockPosition: current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : 0}, mic_controllers[1].state)
 
             ; setup level callback
             if (current_profile.OnscreenOverlay.ShowActivityIndicator)

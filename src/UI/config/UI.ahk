@@ -88,7 +88,7 @@ UI_setProfile(_neutron, p_profile){
     ui_obj.doc.getElementById("OverlayShow").value:= current_profile.OnscreenOverlay.ShowOnState
     ui_obj.doc.getElementById("OverlayShowActivityIndicator").checked:= current_profile.OnscreenOverlay.ShowActivityIndicator
     ui_obj.doc.getElementById("OverlayBlinkState").checked:= current_profile.OnscreenOverlay.BlinkState
-    ui_obj.doc.getElementById("OverlayLockPosition").checked:= current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : (current_profile.OnscreenOverlay.PositionLock ? current_profile.OnscreenOverlay.PositionLock : 0)
+    ui_obj.doc.getElementById("OverlayLockPosition").checked:= current_profile.OnscreenOverlay.LockPosition ? current_profile.OnscreenOverlay.LockPosition : 0
     ui_obj.doc.getElementById("OverlayActivityIndicatorThreshold").value:= current_profile.OnscreenOverlay.ActivityIndicatorThreshold ? current_profile.OnscreenOverlay.ActivityIndicatorThreshold : 0
     ui_obj.doc.getElementById("OverlayUseCustomIcons").checked:= current_profile.OnscreenOverlay.UseCustomIcons
     ui_obj.doc.getElementById("OverlayTheme").value:= current_profile.OnscreenOverlay.Theme
@@ -257,7 +257,6 @@ UI_onSaveProfile(neutron, noReset:=0){
     current_profile.OnscreenOverlay.ShowActivityIndicator:= ui_obj.doc.getElementById("OverlayShowActivityIndicator").checked? 1 : 0
     current_profile.OnscreenOverlay.BlinkState:= ui_obj.doc.getElementById("OverlayBlinkState").checked? 1 : 0
     current_profile.OnscreenOverlay.LockPosition:= ui_obj.doc.getElementById("OverlayLockPosition").checked? 1 : 0
-    current_profile.OnscreenOverlay.PositionLock:= current_profile.OnscreenOverlay.LockPosition
     current_profile.OnscreenOverlay.UseCustomIcons:= ui_obj.doc.getElementById("OverlayUseCustomIcons").checked? 1 : 0
     current_profile.OnscreenOverlay.ActivityIndicatorThreshold:= ui_obj.doc.getElementById("OverlayActivityIndicatorThreshold").value+0
     current_profile.OnscreenOverlay.Theme:= ui_obj.doc.getElementById("OverlayTheme").value
